@@ -12,6 +12,7 @@ public struct PieChartView: View {
     public let values: [Double]
     public let names: [String]
     public let formatter: (Double) -> String
+    public let displayLegend: Bool
     
     public var colors: [Color]
     public var backgroundColor: Color
@@ -34,7 +35,7 @@ public struct PieChartView: View {
         return tempSlices
     }
     
-    public init(values:[Double], names: [String], formatter: @escaping (Double) -> String, colors: [Color] = [Color.blue, Color.green, Color.orange], backgroundColor: Color = Color(red: 21 / 255, green: 24 / 255, blue: 30 / 255, opacity: 1.0), widthFraction: CGFloat = 0.75, innerRadiusFraction: CGFloat = 0.60){
+    public init(values:[Double], names: [String], formatter: @escaping (Double) -> String, colors: [Color] = [Color.blue, Color.green, Color.orange], backgroundColor: Color = Color(red: 21 / 255, green: 24 / 255, blue: 30 / 255, opacity: 1.0), widthFraction: CGFloat = 0.75, innerRadiusFraction: CGFloat = 0.60, displayLegend: Bool = true){
         self.values = values
         self.names = names
         self.formatter = formatter
@@ -43,6 +44,7 @@ public struct PieChartView: View {
         self.backgroundColor = backgroundColor
         self.widthFraction = widthFraction
         self.innerRadiusFraction = innerRadiusFraction
+        self.displayLegend = displayLegend
     }
     
     public var body: some View {
@@ -86,15 +88,17 @@ public struct PieChartView: View {
                         .frame(width: widthFraction * geometry.size.width * innerRadiusFraction, height: widthFraction * geometry.size.width * innerRadiusFraction)
                     
                     VStack {
-                        Text(self.activeIndex == -1 ? "Total" : names[self.activeIndex])
+                        Text(self.activeIndex == -1 ? "Networth" : names[self.activeIndex])
                             .font(.title)
                             .foregroundColor(Color.gray)
-                        Text(self.formatter(self.activeIndex == -1 ? values.reduce(0, +) : values[self.activeIndex]))
+                        Text(self.activeIndex == -1 ? values.reduce(0, +).toCurrencyValue() : values[self.activeIndex].toCurrencyValue())
                             .font(.title)
                     }
                     
                 }
-                PieChartRows(colors: self.colors, names: self.names, values: self.values.map { self.formatter($0) }, percents: self.values.map { String(format: "%.0f%%", $0 * 100 / self.values.reduce(0, +)) })
+                if (self.displayLegend){
+                    PieChartRows(colors: self.colors, names: self.names, values: self.values.map {$0.toCurrencyValue()}, percents: self.values.map { String(format: "%.0f%%", $0 * 100 / self.values.reduce(0, +)) })
+                }
             }
             .background(self.backgroundColor)
             .foregroundColor(Color.white)
@@ -132,8 +136,41 @@ struct PieChartRows: View {
 @available(OSX 10.15.0, *)
 struct PieChartView_Previews: PreviewProvider {
     static var previews: some View {
-        PieChartView(values: [1300, 500, 300], names: ["Rent", "Transport", "Education"], formatter: {value in String(format: "$%.2f", value)})
+        PieChartView(values: [13000, 5000, 3000], names: ["Rent", "Transport", "Education"], formatter: {value in String(format: "$%.2f", value)})
     }
 }
 
+func get_money(value:Double) -> String {
+    let formatter = NumberFormatter()
+    formatter.locale = Locale.current // Change this to another locale if you want to force a specific locale, otherwise this is redundant as the current locale is the default already
+    formatter.numberStyle = .currency
+    let formattedValue = formatter.string(from: value as NSNumber)
+    return formattedValue ?? ""
+}
+
+
+extension Double {
+    public func toCurrencyValue() -> String {
+        let value = Double(self)
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        let formattedValue = formatter.string(from: value as NSNumber)
+        return formattedValue ?? ""
+    }
+}
+
+
+extension NumberFormatter {
+    static var currency: NumberFormatter {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .currency
+        return formatter
+    }
+    
+    static var decimal: NumberFormatter {
+        let formatter = NumberFormatter()
+        formatter.numberStyle = .decimal
+        return formatter
+    }
+}
 
