@@ -101,7 +101,7 @@ public struct PieChartView: View {
                 }
             }
             .background(self.backgroundColor)
-            .foregroundColor(colorScheme  == .dark ? Color.white : Color.black)
+            .foregroundColor(self.backgroundColor == Color.black ? Color.white : Color.black)
         }
     }
 }
