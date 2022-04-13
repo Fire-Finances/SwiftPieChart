@@ -88,7 +88,7 @@ public struct PieChartView: View {
                         .frame(width: widthFraction * geometry.size.width * innerRadiusFraction, height: widthFraction * geometry.size.width * innerRadiusFraction)
                     
                     VStack {
-                        Text(self.activeIndex == -1 ? "Networth" : names[self.activeIndex])
+                        Text(self.activeIndex == -1 ? "Net Worth" : names[self.activeIndex])
                             .font(.title)
                             .foregroundColor(Color.gray)
                         Text(self.activeIndex == -1 ? values.reduce(0, +).toCurrencyValue() : values[self.activeIndex].toCurrencyValue())
@@ -136,7 +136,7 @@ struct PieChartRows: View {
 @available(OSX 10.15.0, *)
 struct PieChartView_Previews: PreviewProvider {
     static var previews: some View {
-        PieChartView(values: [13000, 5000, 3000], names: ["Rent", "Transport", "Education"], formatter: {value in String(format: "$%.2f", value)})
+        PieChartView(values: [13000, 5000, 3000], names: ["Rent", "Transport", "Education"], formatter: {value in String(format: "$%.2f", value)}, backgroundColor: .black)
     }
 }
 
